@@ -10,7 +10,7 @@ import kotlinx.coroutines.launch
 import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.mathematics.units.derived.volt
 import kotlin.math.abs
-
+//val intakeState = true
 val closeIntake = InstantCommand(Runnable { Intake.wantsOpen = false })
 val openIntake = InstantCommand(Runnable { Intake.wantsOpen = true })
 
@@ -61,15 +61,20 @@ class IntakeCargoCommand(val releasing: Boolean) : FalconCommand(Intake) {
 class IntakeTeleopCommand : FalconCommand(Intake) {
 
     override fun execute() {
-        val cargoSpeed = -cargoSource()
-        val hatchSpeed = -hatchSource()
+        val speed = -intakeSource()
 
-        if (abs(cargoSpeed) > 0.2) {
-            Intake.hatchMotorOutput = (-12).volt * cargoSpeed
-            Intake.cargoMotorOutput = 12.volt * cargoSpeed
+        if (abs(speed) > 0.2) {
+            if(Controls.intakeState) {
+                Intake.hatchMotorOutput = (-12).volt * speed
+            }else {
+                Intake.cargoMotorOutput = 12.volt * speed
+            }
         } else {
-            Intake.hatchMotorOutput = 12.volt * hatchSpeed
-            Intake.cargoMotorOutput = 0.volt
+            if(Controls.intakeState) {
+                Intake.hatchMotorOutput = 12.volt * speed
+            }else {
+                Intake.cargoMotorOutput = 0.volt
+            }
         }
     }
 
@@ -79,8 +84,7 @@ class IntakeTeleopCommand : FalconCommand(Intake) {
     }
 
     companion object {
-        val cargoSource by lazy { Controls.operatorFalconHID.getRawAxis(0) }
-        val hatchSource by lazy { Controls.operatorFalconHID.getRawAxis(1) }
+        val intakeSource by lazy { Controls.operatorFalconHID.getRawAxis(5) }
     }
 }
 

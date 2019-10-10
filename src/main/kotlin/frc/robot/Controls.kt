@@ -1,5 +1,6 @@
 package frc.robot
 
+import edu.wpi.first.wpilibj.GamepadBase
 import edu.wpi.first.wpilibj.GenericHID
 import edu.wpi.first.wpilibj.Joystick
 import edu.wpi.first.wpilibj.XboxController
@@ -13,6 +14,7 @@ import frc.robot.subsystems.drive.VisionDriveCommand
 import frc.robot.subsystems.intake.IntakeCargoCommand
 import frc.robot.subsystems.intake.IntakeHatchCommand
 import frc.robot.subsystems.superstructure.* // ktlint-disable no-wildcard-imports
+import net.bytebuddy.implementation.bind.annotation.Super
 import org.ghrobotics.lib.commands.sequential
 import org.ghrobotics.lib.mathematics.units.derived.degree
 import org.ghrobotics.lib.mathematics.units.inch
@@ -22,6 +24,7 @@ import org.team5940.pantry.lib.Updatable
 object Controls : Updatable {
 
     var isClimbing = false
+    var intakeState = true
 
     private val zero = ZeroSuperStructureRoutine()
 
@@ -34,29 +37,69 @@ object Controls : Updatable {
 //        button(kA).changeOn(ClimbSubsystem.fullS3ndClimbCommand)
 
 
-
-        button(kX).changeOn(BottomRocketRoutine2()())
+        //Come back to, to look if it is useful
+ //       button(kX).changeOn(BottomRocketRoutine2()())
 //        button(kX).changeOn(CharacterizationCommand(DriveSubsystem))
+
+
+
+
+
+        button(10).whileOn {
+            intakeState = false
+            button(1).changeOn(Superstructure.kCargoLow) // .changeOff { Superstructure.kStowed.schedule() }
+            button(3).changeOn(Superstructure.kCargoMid) // .changeOff { Superstructure.kStowed.schedule() }
+            button(4).changeOn(Superstructure.kCargoHigh) // .changeOff { Superstructure.kStowed.schedule() }
+            button(2).changeOn(Superstructure.kCargoShip) // .changeOff { Superstructure.kStowed.schedule() }
+            button(9).changeOn(Superstructure.kCargoIntake)
+
+        }
+
+        // Hatch ( with option )
+        button(10).whileOff {
+            intakeState = true
+            // hatch presets
+            button(1).changeOn(Superstructure.kHatchLow) // .changeOff { Superstructure.kStowed.schedule() }
+            button(3).changeOn(Superstructure.kHatchMid) // .changeOff { Superstructure.kStowed.schedule() }
+            button(4).changeOn(Superstructure.kHatchHigh) // .changeOff { Superstructure.kStowed.schedule() }
+            button(2).changeOn(Superstructure.kStowed)
+
+        }
+        // Stow (for now like this coz i dont wanna break anything
+        pov(0).change(ClosedLoopElevatorMove{Elevator.currentState.position + 1.inch})
+        pov(180).change(ClosedLoopElevatorMove{Elevator.currentState.position - 1.inch})
+
+
+        //KILL Switch
+        button(8).whileOn {
+            Robot.activateEmergency()
+        }
+
+
+        //Gas, Backwords
+
+
+
 
         // Vision align
 //            triggerAxisButton(GenericHID.Hand.kRight).change(
 //                    ConditionalCommand(VisionDriveCommand(true), VisionDriveCommand(false),
 //                            BooleanSupplier { !Superstructure.currentState.isPassedThrough }))
-
+//              shifting is good
             // Shifting
             if (Constants.kIsRocketLeague) {
                 button(kBumperRight).change(VisionDriveCommand(true))
 //                button(kBumperRight).change(ClosedLoopVisionDriveCommand(true))
-                button(9).changeOn { DriveSubsystem.lowGear = true }.changeOff { DriveSubsystem.lowGear = false }
+               // button(9).changeOn { DriveSubsystem.lowGear = true }.changeOff { DriveSubsystem.lowGear = false }
             } else {
                 triggerAxisButton(GenericHID.Hand.kRight).change(VisionDriveCommand(true))
 //                triggerAxisButton(GenericHID.Hand.kRight).change(ClosedLoopVisionDriveCommand(true))
                 button(kBumperLeft).changeOn { DriveSubsystem.lowGear = true }.changeOff { DriveSubsystem.lowGear = false }
             }
-//            button(kB).changeOn(ClimbSubsystem.prepMove)
-        state({ isClimbing }) {
-            pov(0).changeOn(ClimbSubsystem.hab3ClimbCommand)
-        }
+        // Hab 3 climb
+               state({ isClimbing }) {
+                   pov(270).changeOn(ClimbSubsystem.hab3ClimbCommand)
+               }
         pov(90).changeOn(ClimbSubsystem.hab3prepMove).changeOn{ isClimbing = true }
     }
 
@@ -75,21 +118,11 @@ object Controls : Updatable {
 
             // cargo presets
 //            button(12).changeOn(Superstructure.kCargoIntake.andThen { Intake.wantsOpen = true }) // .changeOff { Superstructure.kStowed.schedule() }
-            button(7).changeOn(Superstructure.kCargoLow) // .changeOff { Superstructure.kStowed.schedule() }
-            button(6).changeOn(Superstructure.kCargoMid) // .changeOff { Superstructure.kStowed.schedule() }
-            button(5).changeOn(Superstructure.kCargoHigh) // .changeOff { Superstructure.kStowed.schedule() }
-            button(8).changeOn(Superstructure.kCargoShip) // .changeOff { Superstructure.kStowed.schedule() }
 
-            // hatch presets
-            button(3).changeOn(Superstructure.kHatchLow) // .changeOff { Superstructure.kStowed.schedule() }
-            button(2).changeOn(Superstructure.kHatchMid) // .changeOff { Superstructure.kStowed.schedule() }
-            button(1).changeOn(Superstructure.kHatchHigh) // .changeOff { Superstructure.kStowed.schedule() }
 
-            // Stow (for now like this coz i dont wanna break anything
-            button(10).changeOn(Superstructure.kStowed)
 
-            button(9).changeOn(ClosedLoopElevatorMove { Elevator.currentState.position + 1.inch })
-            button(11).changeOn(ClosedLoopElevatorMove { Elevator.currentState.position - 1.inch })
+        //elevator
+           //  button(11).changeOn(ClosedLoopElevatorMove { Elevator.currentState.position - 1.inch })
 
             // that one passthrough preset that doesnt snap back to normal
 //            button(4).changeOn(Superstructure.kBackHatchFromLoadingStation)
@@ -107,7 +140,7 @@ object Controls : Updatable {
             button(12).changeOn(ClimbSubsystem.fullS3ndClimbCommand)
         }
 
-        button(4).changeOn(ClimbSubsystem.prepMove).changeOn { isClimbing = true }
+     //   button(4).changeOn(ClimbSubsystem.prepMove).changeOn { isClimbing = true }
 
     }
 
@@ -121,10 +154,7 @@ object Controls : Updatable {
 private fun Command.andThen(block: () -> Unit) = sequential { +this@andThen ; +InstantCommand(Runnable(block)) }
 
 private fun FalconXboxBuilder.registerEmergencyMode() {
-    button(kBack).changeOn {
-        Robot.activateEmergency()
-    }
-    button(kStart).changeOn {
-        Robot.recoverFromEmergency()
-    }
+
+
+
 }
