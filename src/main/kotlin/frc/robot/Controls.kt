@@ -41,7 +41,7 @@ object Controls : Updatable {
         //       button(kX).changeOn(BottomRocketRoutine2()())
 //        button(kX).changeOn(CharacterizationCommand(DriveSubsystem))
 
-        state({ driverControllerLowLevel.bButton}) {
+        state({ driverControllerLowLevel.getRawButton(10) }) {
             intakeState = false
             //println("cargo activated")
             //test
@@ -54,26 +54,27 @@ object Controls : Updatable {
             button(kY).changeOn(Superstructure.kCargoHigh).changeOn {
                 println("Cargo 3")
             }// .changeOff { Superstructure.kStowed.schedule() }
-            //button(kB).changeOn(Superstructure.kCargoShip) // .changeOff { Superstructure.kStowed.schedule() }
+            button(kB).changeOn(Superstructure.kCargoShip) // .changeOff { Superstructure.kStowed.schedule() }
             button(kStickLeft).changeOn(Superstructure.kCargoIntake)
         }
 
-//      button(kB).changeOn{
-//            intakeState = false
-//            //println("cargo activated")
-//            button(kA).changeOn(Superstructure.kCargoLow).changeOn {
-//                println("Cargo 1")
-//            } // .changeOff { Superstructure.kStowed.schedule() }
-//            button(kX).changeOn(Superstructure.kCargoMid).changeOn {
-//                println("Cargo 2")
-//            } // .changeOff { Superstructure.kStowed.schedule() }
-//            button(kY).changeOn(Superstructure.kCargoHigh).changeOn {
-//                println("Cargo 3")
-//            }// .changeOff { Superstructure.kStowed.schedule() }
-//            //button(kB).changeOn(Superstructure.kCargoShip) // .changeOff { Superstructure.kStowed.schedule() }
-//            button(kStickLeft).changeOn(Superstructure.kCargoIntake)
-//
-//        }
+      state({ !driverControllerLowLevel.getRawButton(10) }) {
+          intakeState = false
+          //println("cargo activated")
+          button(kA).changeOn(Superstructure.kHatchLow).changeOn {
+              println("Cargo 1")
+          } // .changeOff { Superstructure.kStowed.schedule() }
+          button(kX).changeOn(Superstructure.kHatchMid).changeOn {
+              println("Cargo 2")
+          } // .changeOff { Superstructure.kStowed.schedule() }
+          button(kY).changeOn(Superstructure.kHatchHigh).changeOn {
+              println("Cargo 3")
+          }// .changeOff { Superstructure.kStowed.schedule() }
+          button(kB).changeOn(Superstructure.kStowed) // .changeOff { Superstructure.kStowed.schedule() }
+          //Could Be wrong, check later
+          button(kStickLeft).changeOn(Superstructure.kCargoIntake)
+      }
+
 
      //    Hatch ( with option )
 //        button(kB).changeOff{
