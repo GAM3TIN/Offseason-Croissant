@@ -44,6 +44,7 @@ object Controls : Updatable {
         state({ driverControllerLowLevel.bButton}) {
             intakeState = false
             //println("cargo activated")
+            //test
             button(kA).changeOn(Superstructure.kCargoLow).changeOn {
                 println("Cargo 1")
             } // .changeOff { Superstructure.kStowed.schedule() }
