@@ -10,6 +10,8 @@ import kotlinx.coroutines.launch
 import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.mathematics.units.derived.volt
 import kotlin.math.abs
+import kotlin.math.absoluteValue
+
 //val intakeState = true
 val closeIntake = InstantCommand(Runnable { Intake.wantsOpen = false })
 val openIntake = InstantCommand(Runnable { Intake.wantsOpen = true })
@@ -65,18 +67,26 @@ class IntakeTeleopCommand : FalconCommand(Intake) {
 
         if (abs(speed) > 0.2) {
             if(Controls.intakeState) {
-                Intake.hatchMotorOutput = (-12).volt * speed
-            }else {
-                Intake.cargoMotorOutput = 12.volt * speed
+                println("Intake state works")
+                Intake.hatchMotorOutput = (-12).volt * speed  //not changed
+                Intake.wantsOpen = false
+            }
+            else {
+                Intake.wantsOpen = true
+                Intake.cargoMotorOutput = 12.volt * speed  // changed from "12"
             }
         } else {
             if(Controls.intakeState) {
-                Intake.hatchMotorOutput = 12.volt * speed
+                Intake.hatchMotorOutput = 12.volt * speed    //not changed
+                Intake.wantsOpen = false
             }else {
-                Intake.cargoMotorOutput = 0.volt
+                Intake.wantsOpen = false
+                Intake.cargoMotorOutput = (-12).volt       // changed from "0"
             }
         }
     }
+
+    override fun isFinished() = intakeSource().absoluteValue < 0.5
 
     override fun end(interrupted: Boolean) {
         Intake.hatchMotorOutput = 0.volt
@@ -84,7 +94,7 @@ class IntakeTeleopCommand : FalconCommand(Intake) {
     }
 
     companion object {
-        val intakeSource by lazy { Controls.operatorFalconHID.getRawAxis(5) }
+        val intakeSource by lazy { Controls.driverFalconXbox.getRawAxis(5) }
     }
 }
 

@@ -13,6 +13,7 @@ import frc.robot.subsystems.drive.DriveSubsystem
 import frc.robot.subsystems.drive.VisionDriveCommand
 import frc.robot.subsystems.intake.IntakeCargoCommand
 import frc.robot.subsystems.intake.IntakeHatchCommand
+import frc.robot.subsystems.intake.IntakeTeleopCommand
 import frc.robot.subsystems.superstructure.* // ktlint-disable no-wildcard-imports
 import net.bytebuddy.implementation.bind.annotation.Super
 import org.ghrobotics.lib.commands.sequential
@@ -55,45 +56,35 @@ object Controls : Updatable {
                 println("Cargo 3")
             }// .changeOff { Superstructure.kStowed.schedule() }
             button(kB).changeOn(Superstructure.kCargoShip) // .changeOff { Superstructure.kStowed.schedule() }
-            button(kStickLeft).changeOn(Superstructure.kCargoIntake)
+            button(kStickLeft).changeOn(Superstructure.kCargoIntake)  //This line? (for cargo error)
         }
 
       state({ !driverControllerLowLevel.getRawButton(10) }) {
-          intakeState = false
+          intakeState = true //COULD need to switch
           //println("cargo activated")
           button(kA).changeOn(Superstructure.kHatchLow).changeOn {
-              println("Cargo 1")
+              println("Hatch 1")
           } // .changeOff { Superstructure.kStowed.schedule() }
           button(kX).changeOn(Superstructure.kHatchMid).changeOn {
-              println("Cargo 2")
+              println("Hatch 2")
           } // .changeOff { Superstructure.kStowed.schedule() }
           button(kY).changeOn(Superstructure.kHatchHigh).changeOn {
-              println("Cargo 3")
+              println("Hatch 3")
           }// .changeOff { Superstructure.kStowed.schedule() }
           button(kB).changeOn(Superstructure.kStowed) // .changeOff { Superstructure.kStowed.schedule() }
           //Could Be wrong, check later
           button(kStickLeft).changeOn(Superstructure.kCargoIntake)
       }
 
+        axisButton(5).changeOn(IntakeTeleopCommand())
 
-     //    Hatch ( with option )
-//        button(kB).changeOff{
-//
-////            println("hatch activated")
-//            // hatch presets
-//            button(kA).changeOn(Superstructure.kHatchLow).changeOn{
-//                println("Hatch 1")
-//            } // .changeOff { Superstructure.kStowed.schedule() }
-//            button(kX).changeOn(Superstructure.kHatchMid).changeOn{
-//                println("Hatch 2")
-//
-//            } // .changeOff { Superstructure.kStowed.schedule() }
-//            button(kY).changeOn(Superstructure.kHatchHigh).changeOn{
-//                println("Hatch 3")
-//            } // .changeOff { Superstructure.kStowed.schedule() }
-//            //button(kB).changeOn(Superstructure.kStowed)
-//            intakeState = true
-//        }
+
+
+
+
+
+
+
         // Stow (for now like this coz i dont wanna break anything
         pov(0).change(ClosedLoopElevatorMove{Elevator.currentState.position + 1.inch})
         pov(180).change(ClosedLoopElevatorMove{Elevator.currentState.position - 1.inch})
