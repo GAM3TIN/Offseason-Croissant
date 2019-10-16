@@ -65,22 +65,23 @@ class IntakeTeleopCommand : FalconCommand(Intake) {
     override fun execute() {
         val speed = -intakeSource()
 
-        if (abs(speed) > 0.1) {
+        if (abs(speed) > 0.2) {
             if(Controls.intakeState) {
                 println("Intake state works")
                 Intake.hatchMotorOutput = (-12).volt * speed  //not changed
                 Intake.wantsOpen = false
             }
             else {
-                Intake.wantsOpen = false
+                Intake.wantsOpen = true
                 Intake.cargoMotorOutput = 12.volt * speed  // changed from "12"
             }
-        } else {
+        }
+        else {
             if(Controls.intakeState) {
                 Intake.hatchMotorOutput = 12.volt * speed    //not changed
-                Intake.wantsOpen = true
-            }else {
                 Intake.wantsOpen = false
+            }else {
+                Intake.wantsOpen = true
                 Intake.cargoMotorOutput = (-12).volt       // changed from "0"
             }
         }

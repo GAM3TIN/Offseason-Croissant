@@ -56,7 +56,9 @@ object Controls : Updatable {
                 println("Cargo 3")
             }// .changeOff { Superstructure.kStowed.schedule() }
             button(kB).changeOn(Superstructure.kCargoShip) // .changeOff { Superstructure.kStowed.schedule() }
-            button(kStickLeft).changeOn(Superstructure.kCargoIntake)  //This line? (for cargo error)
+          //  button(kStickLeft).changeOn(Superstructure.kCargoIntake)  //This line? (for cargo error)
+           // button(kY).changeOn()
+
         }
 
       state({ !driverControllerLowLevel.getRawButton(10) }) {
